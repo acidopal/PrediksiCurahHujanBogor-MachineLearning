@@ -32,20 +32,18 @@ sns.set_style("whitegrid")
 sns.pairplot(data,hue="Besok_hujan",size=3);
 plt.show()
 
-# Calculate the correlation matrix
 corr = data.corr()
 corr1 = pd.DataFrame(abs(corr['Besok_hujan']),columns = ['Besok_hujan','Tn','Tx','Tavg'])
 nonvals = corr1.loc[corr1['Besok_hujan'] < 0.005]
 print('Var correlation < 0.5%',nonvals)
 nonvals = list(nonvals.index.values)
 
-# We extract variables with correlation less than 0.5%
 data1 = data.drop(columns=nonvals,axis=1)
 print('Data Final',data1.shape)
 
-data = data[['Tn','Tx','Tavg','RR','Hari_hujan','Besok_hujan']] #Subsetting the data
-cor = data.corr() #Calculate the correlation of the above variables
-sns.heatmap(cor, square = True) #Plot the correlation as heat map
+data = data[['Tn','Tx','Tavg','RR','Hari_hujan','Besok_hujan']]
+cor = data.corr() 
+sns.heatmap(cor, square = True) 
 
 from sklearn.model_selection import train_test_split
 Y = data1['Besok_hujan']
@@ -59,16 +57,16 @@ print('Y test shape: ', Y_test.shape)
 
 from sklearn.neighbors import KNeighborsClassifier
 
-# We define the model
+# define model
 knncla = KNeighborsClassifier(n_neighbors=5,n_jobs=-1)
 
-# We train model
+# train model
 knncla.fit(X_train, Y_train)
 
-# We predict target values
+# predict target values
 Y_predict6 = knncla.predict(X_test)
 
-# The confusion matrix
+# confusion matrix
 from sklearn.metrics import confusion_matrix
 import seaborn as sns
 
@@ -83,7 +81,7 @@ plt.show()
 test_acc_knncla = round(knncla.fit(X_train,Y_train).score(X_test, Y_test)* 100, 2)
 train_acc_knncla = round(knncla.fit(X_train, Y_train).score(X_train, Y_train)* 100, 2)
 
-#Accuracy
+# akurasi
 model1 = pd.DataFrame({
     'Model': ['KNN'],
     'Train Score': [train_acc_knncla],
@@ -91,7 +89,7 @@ model1 = pd.DataFrame({
 })
 model1.sort_values(by='Test Score', ascending=False)
 
-#Precision, Recall
+# precision, recall
 from sklearn.metrics import average_precision_score
 average_precision = average_precision_score(Y_test, Y_predict6)
 
@@ -119,8 +117,6 @@ cc = list(X1.columns[model.get_support(indices=True)])
 print(cc)
 print(len(cc))
 
-
-# Principal component analysis
 from sklearn.decomposition import PCA
 
 pca = PCA().fit(X1)
@@ -132,8 +128,6 @@ plt.title('PCA Analysis')
 plt.grid(True)
 plt.show()
 
-
-# Percentage of total variance explained
 variance = pd.Series(list(np.cumsum(pca.explained_variance_ratio_)), 
                         index= list(range(1, 5))) 
 print(variance[30:70])
@@ -143,7 +137,7 @@ X1 = data[cc]
 from sklearn.model_selection import train_test_split
 X1_train, X1_test, Y1_train, Y1_test = train_test_split(X1, Y1, test_size=0.3, random_state=9)
 
-# K-Nearest Neighbor classification
+# classification
 knncla.fit(X1_train, Y1_train)
 Y1_predict6 = knncla.predict(X1_test)
 knncla_cm = confusion_matrix(Y1_test, Y1_predict6)
@@ -158,7 +152,7 @@ plt.show()
 Testscores1 = pd.Series([score1_knncla], index=[ 'K-Nearest Neighbour Score']) 
 print(Testscores1)
 
-#Precision, Recall
+# precision, recall
 from sklearn.metrics import average_precision_score
 average_precision = average_precision_score(Y1_test, Y1_predict6)
 
